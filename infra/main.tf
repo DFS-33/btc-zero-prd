@@ -36,10 +36,9 @@ resource "azurerm_linux_web_app" "main" {
     always_on = false # Required: F1 does not support always_on = true
 
     application_stack {
-      docker_image_name        = "${var.ghcr_username}/btc-zero-prd:latest"
-      docker_registry_url      = "https://ghcr.io"
-      docker_registry_username = var.ghcr_username
-      docker_registry_password = var.ghcr_pat
+      docker_image_name   = "dfs-33/btc-zero-prd:latest"
+      docker_registry_url = "https://ghcr.io"
+      # No credentials needed — GHCR package is public
     }
   }
 
