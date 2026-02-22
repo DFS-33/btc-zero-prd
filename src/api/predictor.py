@@ -90,4 +90,6 @@ class Predictor:
             "prediction": prediction,
             "probability": probability,
             "label": label,
+            "avg_grades": avg_grades,
+            "anos_programa": anos_programa,
         }

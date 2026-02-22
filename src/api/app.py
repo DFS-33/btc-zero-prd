@@ -1,6 +1,7 @@
 """FastAPI application for Passos Mágicos student lag prediction."""
 
 import sys
+import time
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -9,6 +10,7 @@ from fastapi import FastAPI, Request
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
 
+from src.api.observer import PredictionObserver
 from src.api.predictor import Predictor
 from src.api.schemas import (
     HealthResponse,
@@ -33,8 +35,10 @@ async def lifespan(app: FastAPI):
         preprocessor_path=_PREPROCESSOR_PATH,
         summary_path=_SUMMARY_PATH,
     )
+    app.state.observer = PredictionObserver()
     logger.info("Startup complete")
     yield
+    app.state.observer.shutdown()
     logger.info("Shutting down")
 
 
@@ -78,5 +82,21 @@ def predict(body: PredictRequest, request: Request) -> PredictionResponse:
     Returns prediction (0=on_track, 1=at_risk), probability, and label.
     Feature engineering (avg_grades, anos_programa) is applied internally.
     """
-    result = request.app.state.predictor.predict(body.model_dump())
+    raw = body.model_dump()
+
+    t0 = time.perf_counter()
+    result = request.app.state.predictor.predict(raw)
+    latency_ms = (time.perf_counter() - t0) * 1000
+
+    request.app.state.observer.log_prediction(
+        raw_inputs={k: raw[k] for k in ("mat", "por", "ing", "fase", "idade",
+                                        "genero", "instituicao", "pedra")},
+        engineered={
+            "avg_grades": result["avg_grades"],
+            "anos_programa": result["anos_programa"],
+        },
+        result=result,
+        latency_ms=latency_ms,
+        model_name=request.app.state.predictor.model_name,
+    )
     return PredictionResponse(**result)

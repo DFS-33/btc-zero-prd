@@ -5,3 +5,7 @@ app_name            = "passos-magicos-api-XXXX" # must be globally unique in Azu
 location            = "Brazil South"
 resource_group_name = "rg-passos-magicos"
 # No GHCR credentials needed — package is public on ghcr.io
+
+# Optional: Langfuse ML observability (add to Azure App Service → Configuration → App Settings)
+# LANGFUSE_PUBLIC_KEY = "pk-lf-..."
+# LANGFUSE_SECRET_KEY = "sk-lf-..."
