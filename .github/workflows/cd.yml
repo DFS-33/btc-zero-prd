@@ -42,8 +42,12 @@ jobs:
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
+      # Uses the Azure Container Deployment Webhook to force a container pull.
+      # No Service Principal required — the webhook URL carries its own token.
+      # Secret required: AZURE_CONTAINER_WEBHOOK_URL
+      #   Azure Portal → App Service → Deployment Center → Settings → Webhook URL
       - name: Trigger Azure App Service container pull
         run: python3 .github/scripts/az_deploy.py
         env:
-          AZURE_PUBLISH_PROFILE: ${{ secrets.AZURE_PUBLISH_PROFILE }}
+          AZURE_CONTAINER_WEBHOOK_URL: ${{ secrets.AZURE_CONTAINER_WEBHOOK_URL }}
           AZURE_WEBAPP_NAME: ${{ secrets.AZURE_WEBAPP_NAME }}
