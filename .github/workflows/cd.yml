@@ -42,9 +42,31 @@ jobs:
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
-      - name: Deploy to Azure App Service
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
-          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+      - name: Restart Azure App Service (pull new image)
+        run: |
+          python3 - << 'PYEOF'
+          import xml.etree.ElementTree as ET
+          import urllib.request, base64, os, sys
+
+          profile_xml = os.environ["AZURE_PUBLISH_PROFILE"]
+          app_name = os.environ["AZURE_WEBAPP_NAME"]
+
+          root = ET.fromstring(profile_xml)
+          profile = root.find('.//publishProfile[@publishMethod="MSDeploy"]')
+          if profile is None:
+              print("ERROR: MSDeploy profile not found in publish profile", file=sys.stderr)
+              sys.exit(1)
+
+          user = profile.get("userName")
+          pwd  = profile.get("userPWD")
+          creds = base64.b64encode(f"{user}:{pwd}".encode()).decode()
+
+          url = f"https://{app_name}.scm.azurewebsites.net/api/restart"
+          req = urllib.request.Request(url, method="POST",
+                  headers={"Authorization": f"Basic {creds}"})
+          with urllib.request.urlopen(req) as resp:
+              print(f"Kudu restart: HTTP {resp.status}")
+          PYEOF
+        env:
+          AZURE_PUBLISH_PROFILE: ${{ secrets.AZURE_PUBLISH_PROFILE }}
+          AZURE_WEBAPP_NAME: ${{ secrets.AZURE_WEBAPP_NAME }}
