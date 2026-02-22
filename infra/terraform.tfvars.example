@@ -2,7 +2,7 @@
 # terraform.tfvars is gitignored — never commit real values
 
 app_name            = "passos-magicos-api-XXXX" # must be globally unique in Azure
-location            = "East US"
+location            = "Brazil South"
 resource_group_name = "rg-passos-magicos"
 ghcr_username       = "YOUR_GITHUB_USERNAME"    # e.g. DFS-33
 ghcr_pat            = "ghp_XXXXXXXXXXXXXXXXXXXX" # GitHub PAT with read:packages scope
