@@ -18,41 +18,44 @@ RESULT = {"prediction": 0, "probability": 0.3885, "label": "on_track",
 
 
 class TestPredictionObserverUnit:
-    def test_log_prediction_calls_trace(self):
+    def test_log_prediction_calls_start_span(self):
         mock_client = MagicMock()
         observer = PredictionObserver(langfuse_client=mock_client)
         observer.log_prediction(VALID_RAW, ENGINEERED, RESULT, 12.4)
-        mock_client.trace.assert_called_once()
+        mock_client.start_span.assert_called_once()
 
-    def test_trace_contains_correct_name(self):
+    def test_span_contains_correct_name(self):
         mock_client = MagicMock()
         observer = PredictionObserver(langfuse_client=mock_client)
         observer.log_prediction(VALID_RAW, ENGINEERED, RESULT, 12.4)
-        call_kwargs = mock_client.trace.call_args.kwargs
+        call_kwargs = mock_client.start_span.call_args.kwargs
         assert call_kwargs["name"] == "passos-magicos/predict"
 
-    def test_trace_input_has_raw_and_engineered(self):
+    def test_span_input_has_raw_and_engineered(self):
         mock_client = MagicMock()
         observer = PredictionObserver(langfuse_client=mock_client)
         observer.log_prediction(VALID_RAW, ENGINEERED, RESULT, 12.4)
-        call_kwargs = mock_client.trace.call_args.kwargs
+        call_kwargs = mock_client.start_span.call_args.kwargs
         assert "raw" in call_kwargs["input"]
         assert "engineered" in call_kwargs["input"]
 
-    def test_trace_metadata_has_latency(self):
+    def test_span_update_has_output_and_metadata(self):
         mock_client = MagicMock()
         observer = PredictionObserver(langfuse_client=mock_client)
         observer.log_prediction(VALID_RAW, ENGINEERED, RESULT, 12.4)
-        call_kwargs = mock_client.trace.call_args.kwargs
-        assert call_kwargs["metadata"]["latency_ms"] == 12.4
+        span = mock_client.start_span.return_value
+        span.update.assert_called_once()
+        update_kwargs = span.update.call_args.kwargs
+        assert update_kwargs["metadata"]["latency_ms"] == 12.4
+        assert update_kwargs["output"]["prediction"] == RESULT["prediction"]
 
     def test_no_op_when_no_client(self):
         observer = PredictionObserver(langfuse_client=None)
         observer.log_prediction(VALID_RAW, ENGINEERED, RESULT, 5.0)
 
-    def test_no_op_when_trace_raises(self):
+    def test_no_op_when_start_span_raises(self):
         mock_client = MagicMock()
-        mock_client.trace.side_effect = Exception("network error")
+        mock_client.start_span.side_effect = Exception("network error")
         observer = PredictionObserver(langfuse_client=mock_client)
         observer.log_prediction(VALID_RAW, ENGINEERED, RESULT, 5.0)
 

@@ -41,9 +41,11 @@ class PredictionObserver:
         if self._client is None:
             return
         try:
-            self._client.trace(
+            span = self._client.start_span(
                 name="passos-magicos/predict",
                 input={"raw": raw_inputs, "engineered": engineered},
+            )
+            span.update(
                 output={
                     "prediction": result["prediction"],
                     "probability": result["probability"],
@@ -51,6 +53,7 @@ class PredictionObserver:
                 },
                 metadata={"model": model_name, "latency_ms": round(latency_ms, 2)},
             )
+            span.end()
         except Exception as exc:
             logger.warning("PredictionObserver: log_prediction failed: %s", exc)
 
