@@ -1,0 +1,8 @@
+line-length = 120
+
+[lint]
+select = ["E", "F"]
+
+[lint.per-file-ignores]
+"src/pipeline/*.py" = ["E402"]
+"src/api/app.py" = ["E402"]

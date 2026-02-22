@@ -1,0 +1,87 @@
+{
+  "recall": 0.8893,
+  "precision": 0.8459,
+  "f1": 0.8671,
+  "roc_auc": 0.9151,
+  "confusion_matrix": [
+    [
+      161,
+      41
+    ],
+    [
+      28,
+      225
+    ]
+  ],
+  "classification_report": {
+    "0": {
+      "precision": 0.8518518518518519,
+      "recall": 0.7970297029702971,
+      "f1-score": 0.8235294117647058,
+      "support": 202.0
+    },
+    "1": {
+      "precision": 0.8458646616541353,
+      "recall": 0.8893280632411067,
+      "f1-score": 0.8670520231213873,
+      "support": 253.0
+    },
+    "accuracy": 0.8483516483516483,
+    "macro avg": {
+      "precision": 0.8488582567529936,
+      "recall": 0.8431788831057019,
+      "f1-score": 0.8452907174430466,
+      "support": 455.0
+    },
+    "weighted avg": {
+      "precision": 0.848522710928726,
+      "recall": 0.8483516483516483,
+      "f1-score": 0.8477298967608387,
+      "support": 455.0
+    }
+  },
+  "test_set_size": 455,
+  "positive_class_count": 253,
+  "feature_importance": [
+    {
+      "feature": "cat__instituicao",
+      "importance": 0.335911
+    },
+    {
+      "feature": "cat__pedra",
+      "importance": 0.127635
+    },
+    {
+      "feature": "num__idade",
+      "importance": 0.123009
+    },
+    {
+      "feature": "num__fase",
+      "importance": 0.121972
+    },
+    {
+      "feature": "num__ing",
+      "importance": 0.087944
+    },
+    {
+      "feature": "num__avg_grades",
+      "importance": 0.05336
+    },
+    {
+      "feature": "num__anos_programa",
+      "importance": 0.051085
+    },
+    {
+      "feature": "num__por",
+      "importance": 0.033894
+    },
+    {
+      "feature": "cat__genero",
+      "importance": 0.033845
+    },
+    {
+      "feature": "num__mat",
+      "importance": 0.031345
+    }
+  ]
+}

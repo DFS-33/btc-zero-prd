@@ -1,0 +1,108 @@
+project:
+  name: passos-magicos-datathon
+  version: "1.0.0"
+
+data:
+  raw_dir: data/raw
+  processed_dir: data/processed
+  files:
+    - pede_2022.csv
+    - pede_2023.csv
+    - pede_2024.csv
+  sep: ","
+  encoding: utf-8
+  target_column: defasagem
+  binary_target_column: target
+  year_column: year
+
+split:
+  train_ratio: 0.70
+  val_ratio: 0.15
+  test_ratio: 0.15
+  random_state: 42
+  stratify: true
+
+preprocessing:
+  numeric_impute_strategy: median
+  categorical_impute_strategy: most_frequent
+  numeric_features:
+    - mat
+    - por
+    - ing
+    - fase
+    - idade
+  categorical_features:
+    - genero
+    - instituicao
+    - pedra
+  columns_to_drop:
+    - nome
+    - ra
+    - turma
+    - rec_psicologia
+    - fase_ideal
+    - ano_ingresso
+    - ativo
+    - escola
+    - defasagem
+    - year
+    # Composite annual evaluation indices — computed from same source as defasagem (data leakage)
+    - inde
+    - iaa
+    - ieg
+    - ips
+    - ipp
+    - ipv
+    - ida
+    - ian
+
+training:
+  random_state: 42
+  cv_folds: 5
+  primary_metric: recall
+  models:
+    RandomForest:
+      n_estimators: 100
+      max_depth: null
+      class_weight: balanced
+      random_state: 42
+    XGBoost:
+      n_estimators: 100
+      max_depth: 6
+      learning_rate: 0.1
+      random_state: 42
+      eval_metric: logloss
+    LightGBM:
+      n_estimators: 100
+      max_depth: -1
+      learning_rate: 0.1
+      is_unbalance: true
+      random_state: 42
+      verbose: -1
+    LogisticRegression:
+      max_iter: 1000
+      class_weight: balanced
+      random_state: 42
+      solver: lbfgs
+
+evaluation:
+  metrics:
+    - recall
+    - precision
+    - f1
+    - roc_auc
+  confusion_matrix: true
+  feature_importance: true
+  recall_threshold: 0.75
+
+output:
+  model_dir: model
+  model_filename: best_model.pkl
+  metrics_dir: metrics
+  report_filename: report.json
+  eda_filename: eda_summary.json
+  training_summary_filename: training_summary.json
+
+logging:
+  level: INFO
+  format: "%(asctime)s | %(name)s | %(levelname)s | %(message)s"

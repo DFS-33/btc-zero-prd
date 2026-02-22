@@ -1,0 +1,11 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./model:/app/model:ro
+      - ./metrics:/app/metrics:ro
+    environment:
+      - PYTHONPATH=/app
+    restart: unless-stopped
