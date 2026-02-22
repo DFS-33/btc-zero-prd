@@ -40,9 +40,14 @@ creds = f"{user}:{pwd}"
 
 base = f"https://{app_name}.scm.azurewebsites.net"
 
-# Try container webhook first (triggers fresh image pull), fall back to restart
+# Try container webhook first (triggers fresh image pull), fall back to restart.
+# Non-fatal: image is already pushed to GHCR; Azure will pull on next restart.
 code = kudu_post(f"{base}/api/registry/webhook", creds)
 if code not in (200, 204):
     code = kudu_post(f"{base}/api/restart", creds)
     if code not in (200, 204):
-        sys.exit(1)
+        print(
+            "WARN: Kudu trigger failed — image is on GHCR. "
+            "Run 'terraform apply' or restart from Azure Portal.",
+            file=sys.stderr,
+        )
